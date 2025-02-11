@@ -50,5 +50,13 @@ namespace RTL.TvMazeScraper.Application.UnitTests.Generators
                                     GenerateCastPersonEntity()
                                 ])
                             .Generate();
+
+        public static IEnumerable<ShowEntity> GenerateShowEntities(int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                yield return GenerateShowEntity();
+            }
+        }
     }
 }

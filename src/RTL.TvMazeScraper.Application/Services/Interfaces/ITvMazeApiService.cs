@@ -1,6 +1,10 @@
-﻿namespace RTL.TvMazeScraper.Application.Services.Interfaces
+﻿using RTL.TvMazeScraper.Domain.Entities;
+
+namespace RTL.TvMazeScraper.Application.Services.Interfaces
 {
-    public interface ITvMazeApiService
+    public interface ITvMazeApiService : IBaseApiService
     {
+        Task<IEnumerable<ShowEntity>> GetShowsAsync();
+        Task<ICollection<CastPersonEntity>> GetCastAsync(ShowEntity showEntity);
     }
 }

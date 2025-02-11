@@ -1,6 +1,9 @@
+using Hangfire;
 using RTL.TvMazeScraper.Application.Extensions;
+using RTL.TvMazeScraper.Application.Services.Interfaces;
 using RTL.TvMazeScraper.Infastructure.Extensions;
 using RTL.TvMazeScraper.WebApi.Extensions;
+using RTL.TvMazeScraper.WebApi.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,15 +18,17 @@ var configuration = new ConfigurationBuilder()
     .AddJsonFile($"appsettings.json")
     .Build();
 
-var connectionString = configuration.GetConnectionString("DefaultConnection");
-if (string.IsNullOrEmpty(connectionString))
+var logger = LoggerFactory.Create(logging =>
 {
-    throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-}
+    logging.ClearProviders();
+    logging.AddConfiguration(configuration.GetSection("Logging"));
+}).CreateLogger("Logger");
+
+var connectionString = configuration.GetConnectionString("DefaultConnection")!;
 
 builder.Services.AddApplicationServices();
-builder.Services.AddInfrastructureServices(connectionString);
-builder.Services.AddWebServices();
+builder.Services.AddInfrastructureServices(logger, configuration, connectionString);
+builder.Services.AddWebServices(connectionString);
 
 var app = builder.Build();
 
@@ -38,5 +43,10 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseHangfireDashboard();
+app.MapHangfireDashboard();
+
+RecurringJob.AddOrUpdate<ITvMazeJobService>("TvMazeSync", service => service.SyncShowsAsync(), Cron.Hourly);
 
 app.Run();

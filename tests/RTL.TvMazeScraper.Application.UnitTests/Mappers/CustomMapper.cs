@@ -26,9 +26,11 @@ namespace RTL.TvMazeScraper.Application.UnitTests.Mappers
             };
         }
 
+        public static IEnumerable<ShowDto> MapToShowDtos(IEnumerable<ShowEntity> source, IMapper mapper) =>
+            source.Select(s => MapToShowDto(s, mapper)).ToList();
+
         public static CastPersonEntity MapToCastPersonEntity(CastPersonDto source)
         {
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             return new CastPersonEntity
             {
                 Person = new PersonEntity
@@ -38,19 +40,16 @@ namespace RTL.TvMazeScraper.Application.UnitTests.Mappers
                     Name = source.Name
                 },
                 PersonId = source.Id,
-                Show = null
+                Show = null!
             };
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         }
 
-        public static CastPersonDto MapToCastPersonDto(CastPersonEntity source)
-        {
-            return new CastPersonDto
+        public static CastPersonDto MapToCastPersonDto(CastPersonEntity source) =>
+            new()
             {
-                Birthday = source.Person.Birthday,
                 Id = source.Person.Id,
-                Name = source.Person.Name
+                Name = source.Person.Name,
+                Birthday = source.Person.Birthday
             };
-        }
     }
 }

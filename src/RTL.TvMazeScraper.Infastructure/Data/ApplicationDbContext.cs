@@ -4,11 +4,14 @@ using RTL.TvMazeScraper.Infastructure.Data.Configurations;
 
 namespace RTL.TvMazeScraper.Infastructure.Data
 {
-    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
+    public class ApplicationDbContext : DbContext
     {
-        public DbSet<ShowEntity> Shows { get; set; }
-        public DbSet<CastPersonEntity> CastPersons { get; set; }
-        public DbSet<PersonEntity> Persons { get; set; }
+        public virtual DbSet<ShowEntity> Shows { get; set; }
+        public virtual DbSet<CastPersonEntity> CastPersons { get; set; }
+        public virtual DbSet<PersonEntity> Persons { get; set; }
+
+        public ApplicationDbContext() { }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {

@@ -13,7 +13,6 @@ namespace RTL.TvMazeScraper.Application.Extensions
             services.AddAutoMapper(Assembly.GetAssembly(typeof(ApplicationProfile)));
 
             services.AddScoped<IShowService, ShowService>();
-            services.AddScoped<ITvMazeApiService, TvMazeApiService>();
 
             return services;
         }
