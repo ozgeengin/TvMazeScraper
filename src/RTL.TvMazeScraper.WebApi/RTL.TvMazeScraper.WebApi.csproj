@@ -14,4 +14,9 @@
     <Folder Include="Controllers\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\RTL.TvMazeScraper.Application\RTL.TvMazeScraper.Application.csproj" />
+    <ProjectReference Include="..\RTL.TvMazeScraper.Infastructure\RTL.TvMazeScraper.Infastructure.csproj" />
+  </ItemGroup>
+
 </Project>
