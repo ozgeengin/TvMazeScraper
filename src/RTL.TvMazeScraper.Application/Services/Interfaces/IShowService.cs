@@ -1,9 +1,9 @@
-﻿using RTL.TvMazeScraper.Application.Models;
+﻿using RTL.TvMazeScraper.Domain.Models;
 
 namespace RTL.TvMazeScraper.Application.Services.Interfaces
 {
     public interface IShowService
     {
-        Task<PaginatedList<ShowDto>> GetShowsAsync(PaginationRequest paginationRequest);
+        Task<IOrderedEnumerable<ShowModel>> GetOrderedShowsAsync(int pageIndex, int pageSize);
     }
 }

@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
 using RTL.TvMazeScraper.Infastructure.Data;
 using RTL.TvMazeScraper.Infastructure.Data.Entities;
-using RTL.TvMazeScraper.Infastructure.Models;
+using RTL.TvMazeScraper.Infastructure.Exceptions;
+using RTL.TvMazeScraper.Infastructure.Models.Api;
 using RTL.TvMazeScraper.Infastructure.Services.Interfaces;
 
 namespace RTL.TvMazeScraper.Infastructure.Services
@@ -29,6 +30,13 @@ namespace RTL.TvMazeScraper.Infastructure.Services
                 {
                     var peopleToAdd = shows.SelectMany(x => x.Cast).Select(x => x.Person).Where(x => newPeopleIds.Contains(x.Id)).DistinctBy(x => x.Id).ToList();
                     var newPeopleEntities = mapper.Map<List<PersonEntity>>(peopleToAdd).ToList();
+
+                    foreach(var person in newPeopleEntities)
+                    {
+                        var showIds = shows.Where(x => x.Cast.Any(c => c.Person.Id == person.TvMazeId)).Select(x => x.Id).ToList();
+                        person.Shows = context.Shows.Where(x => showIds.Contains(x.TvMazeId)).ToList();
+                    }
+
                     context.People.AddRange(newPeopleEntities);
                     await context.SaveChangesAsync();
                 }
@@ -61,10 +69,11 @@ namespace RTL.TvMazeScraper.Infastructure.Services
 
                 await transaction.CommitAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                throw;
+
+                throw new TvMazeDataSyncException(ex.Message, ex.InnerException);
             }
         }
     }

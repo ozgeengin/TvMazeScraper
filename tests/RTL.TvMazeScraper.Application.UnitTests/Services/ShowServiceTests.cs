@@ -1,63 +1,63 @@
 ﻿using FluentAssertions;
 using Moq;
 using RTL.TvMazeScraper.Application.Exceptions;
-using RTL.TvMazeScraper.Application.Models;
-using RTL.TvMazeScraper.Application.Repositories;
 using RTL.TvMazeScraper.Application.Services;
-using RTL.TvMazeScraper.Application.UnitTests.Generators;
-using RTL.TvMazeScraper.Application.UnitTests.Mappers;
+using RTL.TvMazeScraper.Application.Services.Interfaces;
+using RTL.TvMazeScraper.Application.UnitTests.Helpers;
+using RTL.TvMazeScraper.Domain.Services;
+using RTL.TvMazeScraper.Domain.Services.Interfaces;
 
 namespace RTL.TvMazeScraper.Application.UnitTests.Services
 {
-    public class ShowServiceTests : BaseTest
+    public class ShowServiceTests
     {
-        private readonly Mock<IShowRepository> ShowRepositoryMock;
+        private readonly Mock<IShowQueryService> showQueryServiceMock;
+        private readonly IShowDomainService showDomainService;
 
         public ShowServiceTests()
         {
-            ShowRepositoryMock = new Mock<IShowRepository>();
+            showQueryServiceMock = new Mock<IShowQueryService>();
+            showDomainService = new ShowDomainService();
         }
 
         [Theory]
         [InlineData(1, 2)]
         [InlineData(4, 6)]
         [InlineData(2, 20)]
-        public async Task ShouldReturnExpectedShows(int pageIndex, int pageSize)
+        public async Task ShouldReturnExpectedShowsWithCorrectOrder(int pageIndex, int pageSize)
         {
-            // Arrange
-            var expected = GenerateExpected(pageIndex, pageSize);
-            var sut = new ShowService(ShowRepositoryMock.Object, Mapper);
+            showQueryServiceMock
+                .Setup(x => x.GetShowsAsync(pageIndex, pageSize))
+                .ReturnsAsync(DataGenerator.GenerateShowModels(pageSize));
+
+            var sut = new ShowService(showQueryServiceMock.Object, showDomainService);
 
             // Act
-            var result = await sut.GetShowsAsync(new PaginationRequest(pageIndex, pageSize));
+            var result = await sut.GetOrderedShowsAsync(pageIndex, pageSize);
 
             // Assert
-            result.Should().BeEquivalentTo(expected);
+            result.Should().NotBeEmpty()
+                .And.NotContainNulls()
+                .And.HaveCount(pageSize)
+                .And.OnlyHaveUniqueItems()
+                .And.BeInAscendingOrder(s => s.Id)
+                .And.AllSatisfy(x => x.Cast.Should().BeInDescendingOrder(p => p.Birthday));
         }
 
         [Theory]
-        [InlineData(1, 0)]
-        [InlineData(0, 4)]
-        [InlineData(0, 0)]
-        public async Task ShouldThrowValueShouldBePositiveException(int pageIndex, int pageSize)
+        [InlineData(-1, 1)]
+        [InlineData(1, -1)]
+        [InlineData(-1, -1)]
+        public async Task ShouldThrowShouldBeEqualToOrBiggerThanZeroException(int pageIndex, int pageSize)
         {
             // Arrange
-            var sut = new ShowService(ShowRepositoryMock.Object, Mapper);
+            var sut = new ShowService(showQueryServiceMock.Object, showDomainService);
 
             // Act
-            var action = () => sut.GetShowsAsync(new PaginationRequest(pageIndex, pageSize));
+            var action = () => sut.GetOrderedShowsAsync(pageIndex, pageSize);
 
             // Assert
-            await action.Should().ThrowAsync<ValueShouldBePositiveException>();
-        }
-
-        private PaginatedList<ShowDto> GenerateExpected(int pageIndex, int pageSize)
-        {
-            var showEntities = FakeDataGenerator.GenerateShowEntities(pageSize).ToList();
-            ShowRepositoryMock.Setup(x => x.GetShowsAsync(pageIndex, pageSize)).ReturnsAsync(showEntities);
-            var showDtos = CustomMapper.MapToShowDtos(showEntities, Mapper);
-            
-            return new PaginatedList<ShowDto>(pageIndex, pageSize, showDtos);
+            await action.Should().ThrowAsync<ShouldBeEqualToOrBiggerThanZeroException>();
         }
     }
 }

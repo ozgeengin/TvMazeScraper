@@ -1,6 +1,6 @@
-﻿using Newtonsoft.Json;
-using Polly;
+﻿using Polly;
 using RTL.TvMazeScraper.Application.Services.Interfaces;
+using RTL.TvMazeScraper.Infastructure.Helpers;
 
 namespace RTL.TvMazeScraper.Infastructure.Services
 {
@@ -17,10 +17,7 @@ namespace RTL.TvMazeScraper.Infastructure.Services
             var response = await httpClient.GetAsync(requestUri);
             response.EnsureSuccessStatusCode();
 
-            var responseContent = await response.Content.ReadAsStringAsync();
-            var responseContentModel = JsonConvert.DeserializeObject<T>(responseContent)!;
-
-            return responseContentModel;
+            return await HttpResponseHelper.GetContentAsync<T>(response);
         }
     }
 }

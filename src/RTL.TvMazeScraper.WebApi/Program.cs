@@ -1,9 +1,6 @@
-using Hangfire;
-using RTL.TvMazeScraper.Application.Extensions;
-using RTL.TvMazeScraper.Application.Services.Interfaces;
 using RTL.TvMazeScraper.Infastructure.Extensions;
-using RTL.TvMazeScraper.WebApi.Extensions;
-using RTL.TvMazeScraper.WebApi.Services.Interfaces;
+using RTL.TvMazeScraper.WebApi.Middleware;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,9 +23,7 @@ var logger = LoggerFactory.Create(logging =>
 
 var connectionString = configuration.GetConnectionString("DefaultConnection")!;
 
-builder.Services.AddApplicationServices();
-builder.Services.AddInfrastructureServices(logger, configuration, connectionString);
-builder.Services.AddWebServices(connectionString);
+builder.Services.AddInfrastructureServices(connectionString);
 
 var app = builder.Build();
 
@@ -36,17 +31,15 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 app.MapControllers();
-
-app.UseHangfireDashboard();
-app.MapHangfireDashboard();
-
-RecurringJob.AddOrUpdate<ITvMazeJobService>("TvMazeSync", service => service.SyncShowsAsync(), Cron.Hourly);
 
 app.Run();

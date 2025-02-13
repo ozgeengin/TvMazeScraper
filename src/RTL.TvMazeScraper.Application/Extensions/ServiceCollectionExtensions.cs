@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using RTL.TvMazeScraper.Application.Mappers;
-using RTL.TvMazeScraper.Application.Services;
 using RTL.TvMazeScraper.Application.Services.Interfaces;
-using System.Reflection;
+using RTL.TvMazeScraper.Domain.Services.Interfaces;
+using RTL.TvMazeScraper.Domain.Services;
+using RTL.TvMazeScraper.Application.Services;
 
 namespace RTL.TvMazeScraper.Application.Extensions
 {
@@ -10,8 +10,7 @@ namespace RTL.TvMazeScraper.Application.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
-            services.AddAutoMapper(Assembly.GetAssembly(typeof(ApplicationProfile)));
-
+            services.AddScoped<IShowDomainService, ShowDomainService>();
             services.AddScoped<IShowService, ShowService>();
 
             return services;

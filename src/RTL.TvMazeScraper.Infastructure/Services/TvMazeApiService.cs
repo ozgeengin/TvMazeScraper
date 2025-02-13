@@ -1,15 +1,13 @@
 ﻿using Microsoft.Extensions.Options;
 using Polly;
-using RTL.TvMazeScraper.Application.Services.Interfaces;
-using RTL.TvMazeScraper.Infastructure.Mappers;
-using RTL.TvMazeScraper.Infastructure.Models;
-using RTL.TvMazeScraper.Infastructure.Settings;
 using RTL.TvMazeScraper.Infastructure.Helpers;
-using RTL.TvMazeScraper.Domain.Entities;
+using RTL.TvMazeScraper.Infastructure.Services.Interfaces;
+using RTL.TvMazeScraper.Infastructure.Models.Settings;
+using RTL.TvMazeScraper.Infastructure.Models.Api;
 
 namespace RTL.TvMazeScraper.Infastructure.Services
 {
-    internal class TvMazeApiService : BaseApiService, ITvMazeApiService
+    public class TvMazeApiService : BaseApiService, ITvMazeApiService
     {
         private readonly IOptions<TvMazeApiSettings> apiSettings;
 
@@ -21,23 +19,27 @@ namespace RTL.TvMazeScraper.Infastructure.Services
             this.apiSettings = apiSettings;
         }
 
-        public async Task<IEnumerable<ShowEntity>> GetShowsAsync()
+        public async Task<List<ShowsApiResponseModel>> GetShowsFromTvMazeApiAsync()
         {
-            var response = await GetAsync<IEnumerable<ShowsApiResponseModel>>(apiSettings.Value.ShowsApiUrl);
+            var shows = await GetAsync<List<ShowsApiResponseModel>>(apiSettings.Value.ShowsApiUrl);
 
-            return response.Select(ApiModelMapper.MapToShowEntity);
+            foreach (var show in shows)
+            {
+                var cast = await GetCastAsync(show.Id);
+                show.Cast = cast.Distinct().ToList();
+            }
+
+            return shows;
         }
 
-        public async Task<ICollection<CastPersonEntity>> GetCastAsync(ShowEntity showEntity)
+        private async Task<List<CastApiResponseModel>> GetCastAsync(int showId)
         {
             var castApiUrl = UrlHelper.GetCastApiUrl(
                 apiSettings.Value.CastApiUrl,
                 apiSettings.Value.CastApiUrlPlaceholder,
-                showEntity.Id);
+                showId);
 
-            var response = await GetAsync<IEnumerable<CastApiResponseModel>>(castApiUrl);
-
-            return response.Select(x => ApiModelMapper.MapToCastPersonEntity(x, showEntity)).ToList();
+            return await GetAsync<List<CastApiResponseModel>>(castApiUrl);
         }
     }
 }

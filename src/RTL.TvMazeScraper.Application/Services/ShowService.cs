@@ -1,19 +1,27 @@
-﻿using AutoMapper;
-using RTL.TvMazeScraper.Application.Models;
-using RTL.TvMazeScraper.Application.Repositories;
+﻿using RTL.TvMazeScraper.Application.Exceptions;
 using RTL.TvMazeScraper.Application.Services.Interfaces;
+using RTL.TvMazeScraper.Domain.Models;
+using RTL.TvMazeScraper.Domain.Services.Interfaces;
 
 namespace RTL.TvMazeScraper.Application.Services
 {
-    public class ShowService(IShowRepository showRepository, IMapper mapper) : IShowService
+    public class ShowService(IShowQueryService showQueryService, IShowDomainService showsDomainService) : IShowService
     {
-        public async Task<PaginatedList<ShowDto>> GetShowsAsync(PaginationRequest paginationRequest)
+        public async Task<IOrderedEnumerable<ShowModel>> GetOrderedShowsAsync(int pageIndex, int pageSize)
         {
-            var showEntities = await showRepository.GetShowsAsync(paginationRequest.PageIndex, paginationRequest.PageSize);
+            if (pageIndex < 0)
+            {
+                throw new ShouldBeEqualToOrBiggerThanZeroException(nameof(pageIndex));
+            }
 
-            var showDtos = mapper.Map<IEnumerable<ShowDto>>(showEntities);
+            if (pageSize < 0)
+            {
+                throw new ShouldBeEqualToOrBiggerThanZeroException(nameof(pageSize));
+            }
 
-            return new PaginatedList<ShowDto>(paginationRequest.PageIndex, paginationRequest.PageSize, showDtos);
+            var shows = await showQueryService.GetShowsAsync(pageIndex, pageSize);
+
+            return showsDomainService.GetOrderedShows(shows);
         }
     }
 }
