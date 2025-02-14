@@ -1,7 +1,7 @@
 # TVMazeScraper
 [![Build](https://github.com/ozgeengin/TvMazeScraper/actions/workflows/dotnet.yml/badge.svg)](https://github.com/ozgeengin/TvMazeScraper/actions/workflows/dotnet.yml)
 
-TVMazeScraper is a .NET based application that fetches TV show data from the [TVMaze API](https://www.tvmaze.com/api) and stores them in it's database. It provides a REST API endpoint to access the stored TV show information.
+TVMazeScraper is a .NET based application that fetches TV show data from the [TVMaze API](https://www.tvmaze.com/api) and stores the data. It provides a REST API endpoint to access the stored TV show information.
 
 TVMazeScraper is built using Clean Architecture that promotes separation of concerns by organizing the code into different layers, ensuring maintainability, scalability, and testability. 
 
@@ -20,14 +20,38 @@ TVMazeScraper leverages a variety of modern technologies:
 - **SQL Server** - Relational database for storing TV show data.
 - **Hangfire** - Background job processing and scheduling.
 
-### Resilience & Object Mapping
+### Resilience
 - **Polly** - Provides resilience strategies such as retries and circuit breakers.
+
+### Object Mapping
 - **AutoMapper** - Simplifies object-to-object mapping.
 
 ### Testing & Fake Data Generation
 - **xUnit** - Unit and integration testing framework.
 - **FluentAssertions** - Enhances test readability with intuitive assertions.
 - **Bogus** - Generates realistic fake data for testing.
+
+### API Documentation
+- **Scalar** - Enhances OpenAPI documentation and schema generation.
+
+### Monitoring
+- **HangfireUI** - Web-based dashboard for monitoring and managing Hangfire jobs.
+
+## API Endpoints
+#### API documentation is available at `{WebApiUrl}/scalar/v1/`
+
+- **GET** `api/v1/shows`
+
+- It provides a paginated list of all tv shows containing the id of the TV show and a list of
+all the cast that are playing in that TV show. The list of the cast is ordered by birthday descending.
+
+<img src="./images/scalar.png" />
+
+## Monitoring Tool
+#### Monitoring dashboard is available at `{SyncProcessorUrl}/hangfire`
+
+<img src="./images/hangfire.png" />
+
 
 ## Installation
 
@@ -67,33 +91,6 @@ TVMazeScraper leverages a variety of modern technologies:
    cd src/RTL.TvMazeScraper.SyncProcessor
    dotnet run
    ```
-
-## API Endpoints
-
-### Get TV Shows
-
-- **GET** `api/v1/shows`
-
-- It provides a paginated list of all tv shows containing the id of the TV show and a list of
-all the cast that are playing in that TV show. The list of the cast is ordered by birthday descending.
-
-- Example response:
-
-  ```json
-  [
-    {
-      "id": 4,
-      "name": "Big Bang Theory",
-      "cast": [
-        {
-          "id": 6,
-          "name": "Michael Emerson",
-          "birthday": "1950-01-01"
-        }
-      ]
-    }
-  ]
-  ```
 
 ## Testing
 

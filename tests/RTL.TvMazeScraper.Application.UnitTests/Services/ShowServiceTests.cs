@@ -28,7 +28,7 @@ namespace RTL.TvMazeScraper.Application.UnitTests.Services
         {
             showQueryServiceMock
                 .Setup(x => x.GetShowsAsync(pageIndex, pageSize))
-                .ReturnsAsync(DataGenerator.GenerateShowModels(pageSize));
+                .ReturnsAsync(DataGenerator.GenerateShows(pageSize));
 
             var sut = new ShowService(showQueryServiceMock.Object, showDomainService);
 
