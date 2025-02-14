@@ -26,7 +26,7 @@ TVMazeScraper leverages a variety of modern technologies:
 ### Object Mapping
 - **AutoMapper** - Simplifies object-to-object mapping.
 
-### Testing & Fake Data Generation
+### Testing
 - **xUnit** - Unit and integration testing framework.
 - **FluentAssertions** - Enhances test readability with intuitive assertions.
 - **Bogus** - Generates realistic fake data for testing.
