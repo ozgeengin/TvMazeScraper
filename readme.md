@@ -40,7 +40,7 @@ TVMazeScraper leverages a variety of modern technologies:
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/yourusername/TVMazeScraper.git
+   git clone https://github.com/ozgeengin/TVMazeScraper.git
    cd RTL.TvMazeScraper
    ```
 2. Install dependencies:
