@@ -30,6 +30,7 @@ TVMazeScraper leverages a variety of modern technologies:
 - **xUnit** - Unit and integration testing framework.
 - **FluentAssertions** - Enhances test readability with intuitive assertions.
 - **Bogus** - Generates realistic fake data for testing.
+- **Moq** - Mocking framework for creating test doubles in .NET.
 
 ### API Documentation
 - **Scalar** - Enhances OpenAPI documentation and schema generation.
